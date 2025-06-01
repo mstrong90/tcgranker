@@ -4,7 +4,7 @@ const config = require('../config');
 
 async function getTokenInfo(mintAddress) {
   try {
-    const url = `https://mainnet.helius-rpc.com/?api-key=${config.HELIUS_API_KEY}`;
+    const url = `https://mainnet.helius-rpc.com/?api-key=8154468a-c6c6-4dd4-bdb3-d577c8746720`;
     const response = await axios.post(url, {
       jsonrpc: '2.0',
       id: '1',

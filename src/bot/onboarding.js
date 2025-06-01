@@ -167,17 +167,7 @@ async function onboardingFlow(bot, msg) {
     return;
   }
 
-  // ────────────── If no CA was supplied yet, send the welcome prompt and wait once ──────────────
-  const welcomeMsg =
-    `👋 Welcome, ${username}!\n\n` +
-    `I'm **TCG Ranker**.\n\n` +
-    `I can help your Solana project stand out!\n\n` +
-    `What service are you interested in?\n\n` +
-    `• 📊 **Volume Bot:** Consistently boost your 24-hour volume with realistic trading activity.\n\n` +
-    `• 🚀 **Rank Bot:** Push your project up Dexscreener's trending pages for max visibility.\n\n` +
-    `*Please enter the contract address (CA) to get started:*`;
-
-  await bot.sendMessage(chatId, welcomeMsg, { parse_mode: 'Markdown' });
+  
 
   // Now wait one more time for the user to paste a CA
   bot.once('message', async (caMsg) => {

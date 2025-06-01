@@ -118,10 +118,9 @@ async function withdrawAllSol(fromSecret, toAddress) {
   const toPubkey = new PublicKey(toAddress);
 
   const balanceLamports = await connection.getBalance(fromKeypair.publicKey);
-  const minRentLamports = await connection.getMinimumBalanceForRentExemption(0);
   const feeLamports = 5000; // estimate for one tx
 
-  const maxSendLamports = balanceLamports - minRentLamports - feeLamports;
+  const maxSendLamports = balanceLamports - feeLamports;
   if (maxSendLamports <= 0) {
     return null;
   }
@@ -178,11 +177,10 @@ async function distributeSol(fromSecret, toAddresses) {
   const fromPubkey = fromKeypair.publicKey;
 
   const balanceLamports = await connection.getBalance(fromPubkey);
-  const minRentLamports = await connection.getMinimumBalanceForRentExemption(0);
 
   const feeLamports = 5000;
   const nRecipients = toAddresses.length;
-  const availableLamports = balanceLamports - minRentLamports - feeLamports;
+  const availableLamports = balanceLamports - feeLamports;
   if (availableLamports <= 0) throw new Error('Not enough SOL to distribute after rent and fees.');
 
   const lamportsPerRecipient = Math.floor(availableLamports / nRecipients);

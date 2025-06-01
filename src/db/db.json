@@ -39,5 +39,22 @@
         ]
       }
     ]
+  },
+  {
+    "user": [
+      8092999681,
+      "Marty"
+    ],
+    "projects": [
+      {
+        "ca": "9WfEyNqngVzbvdcpWD7e7TFhgv7T5afBRVHcMw3jmoon",
+        "token_name": "QUAKK",
+        "owner_id": 8092999681,
+        "date_onboarded": "2025-06-01T17:55:08.443Z",
+        "status": "onboarded",
+        "project_wallet": null,
+        "market_maker_wallets": []
+      }
+    ]
   }
 ]

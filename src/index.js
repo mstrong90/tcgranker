@@ -1,7 +1,6 @@
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('./config');
-const handleOnboarding = require('./bot/onboarding');
 const db = require('./db/db');
 const wallets = require('./solana/wallets');
 const { Connection, PublicKey } = require('@solana/web3.js');
@@ -11,10 +10,12 @@ const { userVolumeConfig, awaitingSetting, getVolumeCustomizeMenu } = require('.
 const fs = require('fs');
 const dbPath = './src/db/db.json';
 const { handleWalletsMenu, showMainMenu } = require('./bot/menu');
-
+const onboardingFlow = require('./bot/onboarding');
 
 const heliusKeys = process.env.HELIUS_API_KEYS.split(',').map(k => k.trim());
 let heliusIndex = 0;
+
+const activeProject = {};
 
 function getNextHeliusKey() {
   const key = heliusKeys[heliusIndex];
@@ -34,7 +35,7 @@ const connection = new Connection(`https://mainnet.helius-rpc.com/?api-key=${get
 const pendingPayments = {}; // { [userId]: { ca, qty, cost, startedAt, startingSlot } }
 
 async function startPaymentPolling(userId, ca, qty, cost, chatId, devWallet, bot, db, wallets, handleWalletsMenu) {
-  const startingSlot = await connection.getSlot('confirmed');
+  const startingSlot = await connection.getSlot('finalized');
   pendingPayments[userId] = { ca, qty, cost, startedAt: Date.now(), startingSlot };
 
   const interval = setInterval(async () => {
@@ -61,7 +62,7 @@ async function startPaymentPolling(userId, ca, qty, cost, chatId, devWallet, bot
     for (const sig of sigs) {
       if (sig.slot <= pendingPayments[userId].startingSlot) continue; // Only new txs
 
-      const tx = await connection.getTransaction(sig.signature, { commitment: "confirmed" });
+      const tx = await connection.getTransaction(sig.signature, { commitment: "finalized" });
       if (!tx) continue;
 
       // Find the dev wallet index in this transaction's accountKeys
@@ -159,30 +160,30 @@ bot.onText(/\/start/, async (msg) => {
   const username = msg.from.username || msg.from.first_name || 'there';
 
   if (userExists(userId)) {
-    const user = db.getUser(userId); // Use your db helper
+    const user = db.getUser(userId);
     if (!user.projects || user.projects.length === 0) {
       await bot.sendMessage(chatId, "You don't have any onboarded projects yet. Use /start to onboard one!");
       return;
     }
-    await bot.sendMessage(chatId,
+    await bot.sendMessage(
+      chatId,
       `👋 Welcome back, ${username}!\n\nSelect a project to activate:`,
       {
         reply_markup: {
           inline_keyboard: user.projects.map(p => [{
-            text: p.token_name || p.ca.slice(0, 6) + "..." + p.ca.slice(-4),
+            text: p.token_name || (p.ca.slice(0, 6) + "…" + p.ca.slice(-4)),
             callback_data: `activate_project_${p.ca}`
           }])
         }
       }
     );
     return;
-  }
-
-  else {
-    // Begin onboarding as you do now:
+  } else {
+    // New user: send welcome & ask for CA, then mark awaitingSetting.onboarding = true
     const welcomeMsg = `👋 Welcome, ${username}!\n\nI'm **TCG Ranker**.\n\nI can help your Solana project stand out!\n\nWhat service are you interested in?\n\n• 📊 **Volume Bot:** Consistently boost your 24-hour volume with realistic trading activity.\n\n• 🚀 **Rank Bot:** Push your project up Dexscreener's trending pages for max visibility.\n\nPlease enter the CA:`;
     await bot.sendMessage(chatId, welcomeMsg, { parse_mode: 'Markdown' });
-    // Now your onboarding process continues as before.
+    // ← This line ensures that the next message (the pasted CA) is captured by onboardingFlow:
+    awaitingSetting[chatId] = { onboarding: true };
   }
 });
 
@@ -192,7 +193,7 @@ bot.on('callback_query', async (query) => {
   const chatId = query.message.chat.id;
   const userId = query.from.id;
   const data = query.data;
-  const activeProject = {}; // { [chatId]: ca }
+  
 
 if (data.startsWith('activate_project_')) {
   const ca = data.replace('activate_project_', '');
@@ -204,32 +205,42 @@ if (data.startsWith('activate_project_')) {
   return;
 }
 
-if (data === "my_projects") {
-  const user = db.getUser(userId); // Use your db helper
-  if (!user || !user.projects || user.projects.length === 0) {
-    await bot.sendMessage(chatId, "You haven't onboarded any projects yet. Tap '➕ Add Project' to start!");
-  } else {
-    await bot.sendMessage(
-      chatId,
-      "🪪 *Your Projects*\n\nSelect a project to activate or add a new one:",
-      {
-        parse_mode: "Markdown",
-        reply_markup: {
-          inline_keyboard: [
-            ...user.projects.map(p => [{
-              text: p.token_name || p.ca.slice(0, 6) + "..." + p.ca.slice(-4),
-              callback_data: `activate_project_${p.ca}`
-            }]),
-            [{ text: "➕ Add Project", callback_data: "add_project" }]
-          ]
+// “My Projects” → show existing or prompt “Add Project”:
+  if (data === "my_projects") {
+    const user = db.getUser(userId);
+    if (!user || !user.projects || user.projects.length === 0) {
+      await bot.sendMessage(chatId, "You haven't onboarded any projects yet. Tap '➕ Add Project' to start!");
+    } else {
+      await bot.sendMessage(
+        chatId,
+        "🪪 *Your Projects*\n\nSelect a project to activate or add a new one:",
+        {
+          parse_mode: "Markdown",
+          reply_markup: {
+            inline_keyboard: [
+              ...user.projects.map(p => [{
+                text: p.token_name || (p.ca.slice(0, 6) + "…" + p.ca.slice(-4)),
+                callback_data: `activate_project_${p.ca}`
+              }]),
+              [{ text: "➕ Add Project", callback_data: "add_project" }]
+            ]
+          }
         }
-      }
-    );
+      );
+    }
+    await bot.answerCallbackQuery(query.id);
+    return;
   }
-  await bot.answerCallbackQuery(query.id);
-  return;
-}
 
+
+  // Add Project: prompt for CA & set onboarding flag
+  if (data === "add_project") {
+    await bot.sendMessage(chatId, "Please enter the contract address (CA) for your new project:");
+    // ← Mark this chat as waiting for a CA (onboarding)  
+    awaitingSetting[chatId] = { onboarding: true };
+    await bot.answerCallbackQuery(query.id);
+    return;
+  }
 
   // WALLET MENU (handles refresh, back, etc)
   if (data.startsWith('project_wallets_')) {
@@ -420,8 +431,7 @@ if (data === "my_projects") {
       reply_markup: {
         inline_keyboard: [
           [{ text: '📊 Volume Bot', callback_data: `menu_volume_${ca}` }],
-          [{ text: '🚀 Rank Bot', callback_data: `menu_rank_${ca}` }],
-          [{ text: '👛 Wallets', callback_data: `project_wallets_${ca}` }],
+          [{ text: '🚀 Rank Bot', callback_data: `menu_rank_${ca}` }],          
           [{ text: '📄 My Projects', callback_data: 'my_projects' }]
         ]
       }
@@ -442,12 +452,9 @@ if (data.startsWith('menu_volume_')) {
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
+          [{ text: '👛 Wallets', callback_data: `project_wallets_${ca}` }],
           [{ text: "⚙️ Customize Settings", callback_data: `customize_volume|${ca}` }],
-          [{ text: '1 SOL', callback_data: `volume_run|${ca}|1` }],
-          [{ text: '2 SOL', callback_data: `volume_run|${ca}|2` }],
-          [{ text: '3 SOL', callback_data: `volume_run|${ca}|3` }],
-          [{ text: '4 SOL', callback_data: `volume_run|${ca}|4` }],
-          [{ text: '5 SOL', callback_data: `volume_run|${ca}|5` }],
+          [{ text: "▶️ Start Bot", callback_data: `volume_run|${ca}` }],
           [{ text: '⬅️ Back', callback_data: `back_main_${ca}` }]
         ]
       }
@@ -466,8 +473,8 @@ if (data.startsWith('customize_volume|')) {
   await bot.sendMessage(
     chatId,
     "🛠 *Customize your volume bot settings:*\n\n" +
-    "• *Buy Min / Max*: Smallest and largest SOL amount per buy.\n" +
-    "• *Interval Min / Max*: Shortest and longest pause (in seconds) between trades.\n\n" +
+    "• *Buy Min / Max*: Smallest and largest SOL amount per buy. Default - 0.006 SOL.\n\n" +
+    "• *Interval Min / Max*: Shortest and longest pause (in seconds) between trades. \nDefault - 15 sec.\n\n" +
     "Tap a setting below to update it:",
     {
       parse_mode: 'Markdown',
@@ -505,11 +512,9 @@ if (["set_buy_min", "set_buy_max", "set_interval_min", "set_interval_max"].inclu
   return;
 }
 
-
-// Start volume session
+// Start volume session (run until out of funds)
 if (data.startsWith('volume_run|')) {
-  const [_, ca, amountStr] = data.split('|');
-  const amountSol = parseFloat(amountStr);
+  const [_, ca] = data.split('|'); // No amount anymore!
   const userId = query.from.id;
   const chatId = query.message.chat.id;
 
@@ -519,22 +524,24 @@ if (data.startsWith('volume_run|')) {
   // Build session config using DB settings (fallback to defaults as needed)
   const sessionConfig = buildVolumeConfig({
     ca,
-    solAmount: amountSol,
     ...userSettings // This will override defaults with user's settings if set
   });
 
   // (Optional) Let the user know what settings will be used for this session
   await bot.sendMessage(
     chatId,
-    `🚦 *Starting volume bot session with these settings:*\n` +
+    `🚦 *Starting volume bot session!*\n\n` +
+    `The bot will trade until all funds in your market maker wallets are used up.\n\n` +
+    `*Settings:*\n` +
     `Buy Min: ${sessionConfig.buy_min} SOL\n` +
     `Buy Max: ${sessionConfig.buy_max} SOL\n` +
-    `Interval: ${sessionConfig.interval_min}-${sessionConfig.interval_max} sec\n` +
-    `Total Session SOL: ${amountSol}`,
+    `Interval: ${sessionConfig.interval_min}-${sessionConfig.interval_max} sec\n`,
     { parse_mode: 'Markdown' }
   );
 
-  // Start trading logic
+  const project = db.getProject(userId, ca);
+
+  // Start trading logic (run until out of funds)
   tradingEngine.startVolumeSession({
     userId,
     project,
@@ -546,6 +553,7 @@ if (data.startsWith('volume_run|')) {
   bot.answerCallbackQuery(query.id);
   return;
 }
+
 
 // Stop Volume Bot
 if (data.startsWith('stop_volume_')) {
@@ -560,6 +568,7 @@ if (data.startsWith('stop_volume_')) {
   bot.answerCallbackQuery(query.id);
   return;
 }
+});
 
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
@@ -604,19 +613,11 @@ bot.on('message', async (msg) => {
     );
     return;
   }
-});
-
-if (data === "add_project") {
-  // Call your onboarding flow for this user!
-  const fakeMsg = {
-    chat: { id: chatId },
-    from: { id: userId, username: msg.from.username, first_name: msg.from.first_name }
-  };
-  onboardingFlow(bot, fakeMsg);
-  await bot.answerCallbackQuery(query.id);
-  return;
-}
-
-
-  // Add additional handlers as needed
+  if (awaitingSetting[chatId] && awaitingSetting[chatId].onboarding) {
+    const ca = msg.text.trim();    
+    onboardingFlow(bot, msg);
+    delete awaitingSetting[chatId];
+    return;
+  }
+  
 });

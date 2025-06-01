@@ -1,5 +1,3 @@
-// This is a simple example module
-
 const userVolumeConfig = {}; // Persist this if needed!
 const awaitingSetting = {};
 

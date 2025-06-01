@@ -36,7 +36,7 @@ async function handleWalletsMenu(bot, chatId, ca, userId) {
     for (let w of project.market_maker_wallets) {
       const sol = await wallets.getSolBalance(w.pubkey);
       const tokenBal = await wallets.getTokenBalance(w.pubkey, ca);
-      message += `• Address: \`${w.pubkey}\` | SOL: \`${trimSol(sol)}\` | Token: \`${tokenBal}\`\n`;
+      message += `• Address: \`${w.pubkey}\` | SOL: \`${trimSol(sol)}\` | Token: \`${tokenBal}\`\n\n`;
     }
   }
 
@@ -96,7 +96,6 @@ async function showMainMenu(bot, chatId, userId, ca) {
         inline_keyboard: [
           [{ text: "📊 Volume Bot", callback_data: `menu_volume_${ca}` }],
           [{ text: "🚀 Rank Bot", callback_data: `menu_rank_${ca}` }],
-          [{ text: "👛 Wallets", callback_data: `project_wallets_${ca}` }],
           [{ text: '📄 My Projects', callback_data: 'my_projects' }]
         ]
       }

@@ -86,4 +86,26 @@ buttons.push([
   });
 }
 
-module.exports = handleWalletsMenu;
+async function showMainMenu(bot, chatId, userId, ca) {
+  await bot.sendMessage(
+    chatId,
+    "🌟 *Main Menu*\n\nWhat would you like to do?",
+    {
+      parse_mode: "Markdown",
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "📊 Volume Bot", callback_data: `menu_volume_${ca}` }],
+          [{ text: "🚀 Rank Bot", callback_data: `menu_rank_${ca}` }],
+          [{ text: "👛 Wallets", callback_data: `project_wallets_${ca}` }],
+          [{ text: '📄 My Projects', callback_data: 'my_projects' }]
+        ]
+      }
+    }
+  );
+}
+
+
+module.exports = {
+  handleWalletsMenu,
+  showMainMenu
+};

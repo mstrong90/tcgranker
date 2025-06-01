@@ -1,0 +1,43 @@
+[
+  {
+    "user": [
+      6926242896,
+      "TheCryptoGuyOG"
+    ],
+    "projects": [
+      {
+        "ca": "9WfEyNqngVzbvdcpWD7e7TFhgv7T5afBRVHcMw3jmoon",
+        "token_name": "QUAKK",
+        "owner_id": 6926242896,
+        "date_onboarded": "2025-05-25T22:28:18.348Z",
+        "status": "onboarded",
+        "project_wallet": {
+          "pubkey": "33gWGN3Yh17CaPLh3GHsY42SRpiBT151cXLLjHo4UcU5",
+          "secret": "68c927febd3c0460c56d8b31cbe4aaebf915e8be82ac7b2cdc941d08d56b99f81e673413ca538a736b5030d84b72c0d909e6945e0865116cca631ea8362c6c36"
+        },
+        "market_maker_wallets": [
+          {
+            "pubkey": "36Nf2mmuz5JNWZRsAzdiLLT1YKB6p1MpoEdReRTwb5Cn",
+            "secret": "8f8eab40c5be26edad943ccd66d6b97c42ee70bc09f5e7fa3d845c0f3168e5e51f17c39a6e60f06c3b0aa3d3d3b5f22ae98ea6b9f4af62ff7af14ef7b52152ab"
+          },
+          {
+            "pubkey": "7NZhzYiD38BwZZgjtroKamAXbvQPn3xeuYrAVCTgd7c6",
+            "secret": "5d4fe3991e41aa4e31b50a6856a4520d0841421d013e18a610426a8c563af63b5eac4cda0ca34dfd55395c98eae0edd13809dbb331cc6d82e4629a03fd334ddb"
+          },
+          {
+            "pubkey": "GDtVjDsWvDQLGayx7biqknXY3N2ZNYTq7738JwPUDnm7",
+            "secret": "ce62a124d2fc46e766d8233bcd07e8875774dbe2b8e960ef44ef8ecd9f0b491ae22c7fe1a013de68fa22b2d0f1862f0cb0466b33dbabb9a56c3408713fd7f6a2"
+          },
+          {
+            "pubkey": "FT5GLhNAPLBapjPzGMMUXv88gEnz7r9dN2KLaTczm2N8",
+            "secret": "d96ca60ba3c0bafd80a5f77c58c424f343695200c9672852af13139b2e111372d6b18a34734175b113e68b5ae7c64a205b44a502a4a1138d551410bac61bbe3d"
+          },
+          {
+            "pubkey": "EvWZRpnhQUZdqqZg4eyGECL3NuAnmgcAeNVyoV281iBD",
+            "secret": "060b6a307ac942337c907b1b008dad00cc849b1cb3063d4c53ee573573864c74cedd22b0acf5934d46fcfdf06122d9bc430559935d121d813549eb2466afdc24"
+          }
+        ]
+      }
+    ]
+  }
+]

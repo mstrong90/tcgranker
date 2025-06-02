@@ -136,7 +136,8 @@ async function onboardingFlow(bot, msg) {
               date_onboarded: new Date().toISOString(),
               status: 'onboarded',
               project_wallet: null,
-              market_maker_wallets: []
+              market_maker_wallets: [],
+              visible: true
             }
           );
 

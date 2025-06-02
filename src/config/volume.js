@@ -15,8 +15,8 @@ function buildVolumeConfig({ ca, solAmount }) {
     buy_ratio: 50,
     sell_ratio: 50,
     limit_trades: 999999,
-    min_sol_balance: 0.002,
-    min_sol_balance_sell: 0.002,
+    min_sol_balance: 0.001,
+    min_sol_balance_sell: 0.001,
     timeout_by_seconds: 180,
     retry_number: 3,
     title: "Organic Volume Run"

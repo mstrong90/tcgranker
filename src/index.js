@@ -9,7 +9,7 @@ const tradingEngine = require('./trading/engine');
 const { userVolumeConfig, awaitingSetting, getVolumeCustomizeMenu } = require('./bot/volume_customize');
 const fs = require('fs');
 const dbPath = './src/db/db.json';
-const { handleWalletsMenu, showMainMenu } = require('./bot/menu');
+const { handleWalletsMenu, showMainMenu, handleRankMenu, handleRankWalletsMenu } = require('./bot/menu');
 const onboardingFlow = require('./bot/onboarding');
 
 const heliusKeys = process.env.HELIUS_API_KEYS.split(',').map(k => k.trim());
@@ -161,24 +161,38 @@ bot.onText(/\/start/, async (msg) => {
 
   if (userExists(userId)) {
     const user = db.getUser(userId);
-    if (!user.projects || user.projects.length === 0) {
-      await bot.sendMessage(chatId, "You don't have any onboarded projects yet. Use /start to onboard one!");
+    // Only include projects where visible !== false
+    const visibleProjects = (user.projects || []).filter(p => p.visible !== false);
+
+    if (visibleProjects.length === 0) {
+      await bot.sendMessage(chatId, "You don't have any onboarded projects yet. Use ➕ Add Project to get started!");
       return;
     }
+
+    // Build buttons using only visibleProjects
+    const buttons = visibleProjects.map(p => [{
+      text: p.token_name || (p.ca.slice(0, 6) + "…" + p.ca.slice(-4)),
+      callback_data: `activate_project_${p.ca}`
+    }]);
+
+    // Add a “➕ Add Project” and “⬅️ Back” row, if desired
+    buttons.push(
+      [ { text: '➕ Add Project', callback_data: 'add_project' } ],
+      [ { text: '⬅️ Back', callback_data: 'back_main' } ]
+    );
+
     await bot.sendMessage(
       chatId,
       `👋 Welcome back, ${username}!\n\nSelect a project to activate:`,
       {
-        reply_markup: {
-          inline_keyboard: user.projects.map(p => [{
-            text: p.token_name || (p.ca.slice(0, 6) + "…" + p.ca.slice(-4)),
-            callback_data: `activate_project_${p.ca}`
-          }])
-        }
+        parse_mode: 'Markdown',
+        reply_markup: { inline_keyboard: buttons }
       }
     );
     return;
-  } else {
+  }
+  
+  else {
     // New user: send welcome & ask for CA, then mark awaitingSetting.onboarding = true
     const welcomeMsg = `👋 Welcome, ${username}!\n\nI'm **TCG Ranker**.\n\nI can help your Solana project stand out!\n\nWhat service are you interested in?\n\n• 📊 **Volume Bot:** Consistently boost your 24-hour volume with realistic trading activity.\n\n• 🚀 **Rank Bot:** Push your project up Dexscreener's trending pages for max visibility.\n\nPlease enter the CA:`;
     await bot.sendMessage(chatId, welcomeMsg, { parse_mode: 'Markdown' });
@@ -193,9 +207,153 @@ bot.on('callback_query', async (query) => {
   const chatId = query.message.chat.id;
   const userId = query.from.id;
   const data = query.data;
-  
 
-if (data.startsWith('activate_project_')) {
+// ─── “My Projects” ────────────────────────────────────────────────────────
+  if (data === 'my_projects') {
+    const user = db.getUser(userId);
+    const allProjects = (user && Array.isArray(user.projects)) ? user.projects : [];
+    // Only show those with visible !== false
+    const visibleProjects = allProjects.filter(p => p.visible !== false);
+
+    if (visibleProjects.length === 0) {
+      // No visible projects yet
+      await bot.sendMessage(chatId, "You haven't onboarded any projects yet.");
+      // But still offer “Add Project”
+      await bot.sendMessage(chatId, "What would you like to do?", {
+        reply_markup: {
+          inline_keyboard: [
+            [ { text: '➕ Add Project', callback_data: 'add_project' } ],
+            [ { text: '⬅️ Back',       callback_data: 'back_main'   } ]
+          ]
+        }
+      });
+    } else {
+      // Show list of visible projects, each with an “Activate” button
+      const projectButtons = visibleProjects.map(p => ([
+        {
+          text: p.token_name || (p.ca.slice(0, 6) + '…' + p.ca.slice(-4)),
+          callback_data: `activate_project_${p.ca}`
+        }
+      ]));
+
+      // Add “➕ Add Project” and “➖ Remove Project” at the bottom
+      projectButtons.push(
+        [ { text: '➕ Add Project',    callback_data: 'add_project'    } ],
+        [ { text: '➖ Remove Project', callback_data: 'remove_project' } ],
+        [ { text: '⬅️ Back',       callback_data: 'back_main'   } ]
+      );
+
+      await bot.sendMessage(chatId, "👥 *Your Projects*", {
+        parse_mode: 'Markdown',
+        reply_markup: { inline_keyboard: projectButtons }
+      });
+    }
+
+    await bot.answerCallbackQuery(query.id);
+    return;
+  }
+
+  // ─── “Remove Project” ─────────────────────────────────────────────────────
+  // User tapped “➖ Remove Project” from the menu
+  if (data === 'remove_project') {
+    const user = db.getUser(userId);
+    const allProjects = (user && Array.isArray(user.projects)) ? user.projects : [];
+    const visibleProjects = allProjects.filter(p => p.visible !== false);
+
+    if (visibleProjects.length === 0) {
+      // Nothing to remove
+      await bot.sendMessage(chatId, "No visible projects to remove.");
+      // Re‐show the menu:
+      await bot.sendMessage(chatId, "What would you like to do?", {
+        reply_markup: {
+          inline_keyboard: [
+            [ { text: '➕ Add Project',    callback_data: 'add_project'    } ],
+            [ { text: '⬅️ Back',           callback_data: 'my_projects'   } ]
+          ]
+        }
+      });
+      await bot.answerCallbackQuery(query.id);
+      return;
+    }
+
+    // Build buttons: “Remove <token_name>”
+    const removeButtons = visibleProjects.map(p => ([
+      {
+        text: `Remove ${p.token_name || (p.ca.slice(0, 6) + '…' + p.ca.slice(-4))}`,
+        callback_data: `remove_${p.ca}`
+      }
+    ]));
+
+    // Add a “Cancel” row at the bottom
+    removeButtons.push([
+      { text: '❌ Cancel', callback_data: 'my_projects' }
+    ]);
+
+    await bot.sendMessage(chatId, "🗑 *Select a project to remove:*", {
+      parse_mode: 'Markdown',
+      reply_markup: { inline_keyboard: removeButtons }
+    });
+
+    await bot.answerCallbackQuery(query.id);
+    return;
+  }
+
+  // ─── “remove_<CA>” ─────────────────────────────────────────────────────────
+  // User confirmed which project to remove
+  if (data.startsWith('remove_')) {
+    const ca = data.replace('remove_', '');
+    const user = db.getUser(userId);
+
+    if (user && Array.isArray(user.projects)) {
+      // Find the project object and set visible = false
+      const proj = user.projects.find(p => p.ca === ca);
+      if (proj) {
+        proj.visible = false;
+        // Persist the change back to DB/JSON
+        db.addOrUpdateProject(
+          userId,
+          user.username,
+          ca,
+          proj.token_name,
+          {
+            owner_id: proj.owner_id,
+            date_onboarded: proj.date_onboarded,
+            status: proj.status,
+            project_wallet: proj.project_wallet,
+            market_maker_wallets: proj.market_maker_wallets,
+            visible: false
+          }
+        );
+        await bot.sendMessage(chatId, `❌ Project \`${proj.token_name || ca}\` removed from your list.`);
+      } else {
+        await bot.sendMessage(chatId, `⚠️ Project not found.`);
+      }
+    } else {
+      await bot.sendMessage(chatId, `⚠️ You have no projects to remove.`);
+    }
+
+    // After removal, re‐show “My Projects”
+    await bot.sendMessage(chatId, "↩️ Returning to My Projects…", {
+      reply_markup: {
+        inline_keyboard: [
+          [ { text: '↪️ My Projects', callback_data: 'my_projects' } ]
+        ]
+      }
+    });
+
+    await bot.answerCallbackQuery(query.id);
+    return;
+  }
+
+  // ─── “Add Project” (unchanged) ───────────────────────────────────────────────
+  if (data === 'add_project') {
+    await bot.sendMessage(chatId, "Please enter the contract address (CA) for your new project:");
+    awaitingSetting[chatId] = { onboarding: true };
+    await bot.answerCallbackQuery(query.id);
+    return;
+  }
+
+  if (data.startsWith('activate_project_')) {
   const ca = data.replace('activate_project_', '');
   activeProject[chatId] = ca;
   await bot.sendMessage(chatId, "✅ Project activated! Use the menu below:");
@@ -205,39 +363,98 @@ if (data.startsWith('activate_project_')) {
   return;
 }
 
-// “My Projects” → show existing or prompt “Add Project”:
-  if (data === "my_projects") {
-    const user = db.getUser(userId);
-    if (!user || !user.projects || user.projects.length === 0) {
-      await bot.sendMessage(chatId, "You haven't onboarded any projects yet. Tap '➕ Add Project' to start!");
-    } else {
-      await bot.sendMessage(
-        chatId,
-        "🪪 *Your Projects*\n\nSelect a project to activate or add a new one:",
-        {
-          parse_mode: "Markdown",
-          reply_markup: {
-            inline_keyboard: [
-              ...user.projects.map(p => [{
-                text: p.token_name || (p.ca.slice(0, 6) + "…" + p.ca.slice(-4)),
-                callback_data: `activate_project_${p.ca}`
-              }]),
-              [{ text: "➕ Add Project", callback_data: "add_project" }]
-            ]
-          }
-        }
-      );
-    }
+if (data === 'back_main') {
+    // Replace this with however you show your main menu (for example):
+    await showMainMenu(bot, chatId, userId, /* current CA or default */ '');
     await bot.answerCallbackQuery(query.id);
     return;
   }
 
+// ─── “Rank Bot” main menu ───────────────────────────────────────────────────
+  if (data.startsWith('menu_rank_')) {
+    const ca = data.replace('menu_rank_', '');
+    await handleRankMenu(bot, chatId, ca, userId);
+    await bot.answerCallbackQuery(query.id);
+    return;
+  }
 
-  // Add Project: prompt for CA & set onboarding flag
-  if (data === "add_project") {
-    await bot.sendMessage(chatId, "Please enter the contract address (CA) for your new project:");
-    // ← Mark this chat as waiting for a CA (onboarding)  
-    awaitingSetting[chatId] = { onboarding: true };
+  // ─── “Rank Bot → Wallets” ───────────────────────────────────────────────────
+  if (data.startsWith('rank_wallets_')) {
+    const ca = data.replace('rank_wallets_', '');
+    await handleRankWalletsMenu(bot, chatId, ca, userId);
+    await bot.answerCallbackQuery(query.id);
+    return;
+  }
+
+  // ─── “Generate 50 Ranker Wallets” ────────────────────────────────────────────
+  if (data.startsWith('gen_ranker_wallets_')) {
+    const ca = data.replace('gen_ranker_wallets_', '');
+    const user = db.getUser(userId);
+    const project = db.getProject(userId, ca);
+
+    if (!project) {
+      await bot.sendMessage(chatId, "Project not found.");
+      await bot.answerCallbackQuery(query.id);
+      return;
+    }
+
+    // Generate 50 new wallets
+    const newRankers = [];
+    for (let i = 0; i < 50; i++) {
+      const w = wallets.createWallet();
+      newRankers.push(w);
+    }
+
+    // Save to project.ranker_wallets, leaving existing rankers intact if any
+    project.ranker_wallets = newRankers.map((w) => ({
+      pubkey: w.pubkey,
+      secret: w.secret
+    }));
+
+    // Persist to your JSON (db.addOrUpdateProject must accept ranker_wallets)
+    db.addOrUpdateProject(
+      userId,
+      user.username,
+      ca,
+      project.token_name, // or p.token_name
+      {
+        owner_id: project.owner_id,
+        date_onboarded: project.date_onboarded,
+        status: project.status,
+        project_wallet: project.project_wallet,
+        market_maker_wallets: project.market_maker_wallets,
+        ranker_wallets: project.ranker_wallets,
+        visible: project.visible !== false
+      }
+    );
+
+    await bot.sendMessage(chatId, "✅ Generated *50 Ranker Wallets!*", { parse_mode: 'Markdown' });
+    // Re‐show the “Rank Bot → Wallets” menu (to display the new wallets)
+    await handleRankWalletsMenu(bot, chatId, ca, userId);
+    await bot.answerCallbackQuery(query.id);
+    return;
+  }
+
+  // ─── “Generate Project Wallet” reuse (same as volume) ───────────────────────
+  if (data.startsWith('gen_project_wallet_')) {
+    const ca = data.replace('gen_project_wallet_', '');
+    // … your existing code to generate a project wallet and save to DB …
+    await bot.answerCallbackQuery(query.id);
+    return;
+  }
+
+  // ─── “Rank Bot → Customize Settings” ─────────────────────────────────────────
+  if (data.startsWith('rank_customize_')) {
+    const ca = data.replace('rank_customize_', '');
+    // … route to your rank‐customize flow (like volume_customize.js) …
+    await bot.answerCallbackQuery(query.id);
+    return;
+  }
+
+  // ─── “Rank Bot → Start Bot” ─────────────────────────────────────────────────
+  if (data.startsWith('rank_start_')) {
+    const ca = data.replace('rank_start_', '');
+    // … call your rank‐engine’s startRankSession(...) …
     await bot.answerCallbackQuery(query.id);
     return;
   }
@@ -619,5 +836,6 @@ bot.on('message', async (msg) => {
     delete awaitingSetting[chatId];
     return;
   }
+  
   
 });

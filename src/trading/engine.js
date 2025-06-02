@@ -1,4 +1,11 @@
-const { Keypair, PublicKey, Connection, VersionedTransaction } = require('@solana/web3.js');
+// src/solana/engine.js
+
+const {
+  Keypair,
+  PublicKey,
+  Connection,
+  VersionedTransaction
+} = require('@solana/web3.js');
 const axios = require('axios');
 const config = require('../config');
 
@@ -21,7 +28,7 @@ async function getSolUsdPrice() {
     const res = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
     return res.data.solana.usd;
   } catch {
-    return null; // fallback if request fails
+    return null;
   }
 }
 
@@ -46,17 +53,17 @@ async function getMintDecimals(mintAddress) {
     ) {
       return mintAccount.value.data.parsed.info.decimals;
     }
-  } catch (e) {
+  } catch {
     // ignore
   }
-  // Default fallback (most SPL tokens)
   return 9;
 }
 
 // Get SOL balance for wallet
 async function getSolBalance(pubkey) {
   const connection = getHeliusConnection();
-  return (await connection.getBalance(new PublicKey(pubkey))) / 1e9;
+  const lamports = await connection.getBalance(new PublicKey(pubkey));
+  return lamports / 1e9;
 }
 
 // Get token balance for wallet
@@ -77,29 +84,16 @@ async function getTokenBalance(pubkey, tokenMint) {
 async function jupiterSwap({ secret, inputMint, outputMint, amount, slippageBps }) {
   const connection = getHeliusConnection();
   try {
-    // Add logging of params for every attempted swap
-    console.log('Jupiter swap params:', {
-      inputMint,
-      outputMint,
-      amount,
-      slippageBps,
-      // user: Keypair.fromSecretKey(Buffer.from(secret, 'hex')).publicKey.toBase58().slice(0, 8) + '...'
-    });
+    console.log('Jupiter swap params:', { inputMint, outputMint, amount, slippageBps });
 
     const keypair = Keypair.fromSecretKey(Buffer.from(secret, 'hex'));
     const userPublicKey = keypair.publicKey.toBase58();
 
-    // 1. Jupiter Quote (amount in smallest units)
+    // 1. Jupiter Quote
     const quoteRes = await axios.get('https://quote-api.jup.ag/v6/quote', {
-      params: {
-        inputMint,
-        outputMint,
-        amount,
-        slippageBps,
-      },
+      params: { inputMint, outputMint, amount, slippageBps }
     });
     const quote = quoteRes.data;
-
     if (!quote || !quote.outAmount || quote.inAmount === '0') {
       throw new Error("Jupiter could not provide a quote.");
     }
@@ -107,27 +101,18 @@ async function jupiterSwap({ secret, inputMint, outputMint, amount, slippageBps 
     // 2. Jupiter Swap
     const swapRes = await axios.post(
       'https://quote-api.jup.ag/v6/swap',
-      {
-        quoteResponse: quote,
-        userPublicKey,
-        wrapAndUnwrapSol: true,
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
-      }
+      { quoteResponse: quote, userPublicKey, wrapAndUnwrapSol: true },
+      { headers: { 'Content-Type': 'application/json' } }
     );
     const { swapTransaction } = swapRes.data;
     const txBuf = Buffer.from(swapTransaction, 'base64');
     const tx = VersionedTransaction.deserialize(txBuf);
 
     tx.sign([keypair]);
-
     const sig = await connection.sendTransaction(tx, { skipPreflight: false, preflightCommitment: 'confirmed' });
     await connection.confirmTransaction(sig, 'confirmed');
-
     return sig;
   } catch (e) {
-    // Add detailed error logging for API errors
     if (e.response && e.response.data) {
       console.error('Jupiter swap error details:', e.response.data);
       throw new Error("Jupiter swap error: " + JSON.stringify(e.response.data));
@@ -141,69 +126,60 @@ async function startVolumeSession({ userId, project, sessionConfig, bot, chatId 
   const tokenMint = sessionConfig.token_mint;
   const wsolMint = sessionConfig.wsol;
 
-  // Fetch decimals for both mints (do once per session!)
-  const solDecimals = 9; // Always 9 for SOL/WSOL
+  const solDecimals = 9;
   const tokenDecimals = await getMintDecimals(tokenMint);
 
   let totalTrades = 0;
   let totalVolume = 0;
-  let running = true;
   let lastWalletIdx = -1;
 
   activeSessions[chatId] = { stop: false };
 
-  await bot.sendMessage(chatId, `⏳ Volume bot is now running! You can stop at any time with the button below:`, {
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: "🛑 Stop Bot", callback_data: `stop_volume_${project.ca}` }]
-      ]
-    }
+  await bot.sendMessage(chatId, `⏳ Volume bot is now running! You can stop at any time:`, {
+    reply_markup: { inline_keyboard: [[{ text: "🛑 Stop Bot", callback_data: `stop_volume_${project.ca}` }]] }
   });
 
-  let remainingSol = sessionConfig.sol_per_session;
-
   while (
-    running &&
     activeSessions[chatId] &&
     !activeSessions[chatId].stop &&
-    totalTrades < sessionConfig.limit_trades &&
-    remainingSol > sessionConfig.min_sol_balance
+    totalTrades < sessionConfig.limit_trades
   ) {
-    // Pick a wallet that isn't the last one (if possible)
-    let availableWallets = mmWallets.slice();
-    if (mmWallets.length > 1 && lastWalletIdx !== -1) {
-      availableWallets.splice(lastWalletIdx, 1);
+    // 1) Build list of wallets with SOL >= min_sol_balance
+    const fundedWallets = [];
+    for (const mm of mmWallets) {
+      const solBal = await getSolBalance(mm.pubkey);
+      if (solBal >= sessionConfig.min_sol_balance) {
+        fundedWallets.push({ ...mm, solBal });
+      }
     }
-    let walletIdx = Math.floor(Math.random() * availableWallets.length);
-    if (mmWallets.length > 1 && lastWalletIdx !== -1 && walletIdx >= lastWalletIdx) walletIdx += 1;
+    // 2) If none remain, break
+    if (fundedWallets.length === 0) break;
 
-    const mm = mmWallets[walletIdx];
-    lastWalletIdx = walletIdx;
+    // 3) Pick next wallet (round-robin)
+    lastWalletIdx = (lastWalletIdx + 1) % fundedWallets.length;
+    const chosen = fundedWallets[lastWalletIdx];
 
-    // Random trade direction
+    // 4) Decide trade type
     const isBuy = Math.random() < sessionConfig.buy_ratio / 100;
-
-    // Trade amount
     let tradeAmount;
+
     if (isBuy) {
       tradeAmount = Math.random() * (sessionConfig.buy_max_by_sol - sessionConfig.buy_min_by_sol) + sessionConfig.buy_min_by_sol;
       tradeAmount = Number(tradeAmount.toFixed(4));
-      // Check up-to-date SOL balance with fee buffer
-      const solBal = await getSolBalance(mm.pubkey);
+      const solBal = chosen.solBal;
       if (solBal < tradeAmount + sessionConfig.min_sol_balance + 0.001) {
         await sleep(1000);
         continue;
       }
     } else {
-      // Sell 100% of balance (refresh live)
-      tradeAmount = await getTokenBalance(mm.pubkey, tokenMint);
+      tradeAmount = await getTokenBalance(chosen.pubkey, tokenMint);
       if (tradeAmount < sessionConfig.min_sol_balance_sell || tradeAmount === 0) {
         await sleep(1000);
         continue;
       }
     }
 
-    // Prepare Jupiter params
+    // 5) Build Jupiter parameters
     let inputMint, outputMint, inputAmount, slippageBps;
     if (isBuy) {
       inputMint = wsolMint;
@@ -217,54 +193,40 @@ async function startVolumeSession({ userId, project, sessionConfig, bot, chatId 
       slippageBps = sessionConfig.sell_slippage_bps;
     }
 
-    // Log trade
-    console.log(`Trade: ${isBuy ? 'BUY' : 'SELL'} ${tradeAmount} ${isBuy ? 'SOL' : 'Token'}`);
-
-    // Execute trade
+    // 6) Execute trade
     try {
       const txSig = await jupiterSwap({
-        secret: mm.secret,
+        secret: chosen.secret,
         inputMint,
         outputMint,
         amount: inputAmount,
-        slippageBps,
+        slippageBps
       });
 
       totalTrades++;
-      if (isBuy) {
-        remainingSol -= tradeAmount;
-        totalVolume += tradeAmount;
-      }
+      if (isBuy) totalVolume += tradeAmount;
 
-      // Hyperlink for transaction
       const txUrl = `https://solscan.io/tx/${txSig}`;
-      const txLink = `[View Tx](${txUrl})`;
-
-      // Send message for every trade, always with Stop button and hyperlink
       await bot.sendMessage(
         chatId,
         `${isBuy ? 'BUY' : 'SELL'} | Amount: ${tradeAmount} ${isBuy ? 'SOL' : 'Token'}\n` +
-        `${txLink}\n` +
-        `Progress: ${totalTrades} trades completed.`,
+        `[View Tx](${txUrl})\n` +
+        `Trades: ${totalTrades}`,
         {
           parse_mode: 'Markdown',
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: "🛑 Stop Bot", callback_data: `stop_volume_${project.ca}` }]
-            ]
-          }
+          reply_markup: { inline_keyboard: [[{ text: "🛑 Stop Bot", callback_data: `stop_volume_${project.ca}` }]] }
         }
       );
     } catch (e) {
       await bot.sendMessage(chatId, `❌ Trade failed: ${e.message}`);
     }
 
-    // Wait a random interval per config for "organic" effect
+    // 7) Wait a random interval
     const waitTime = Math.random() * (sessionConfig.interval_max - sessionConfig.interval_min) + sessionConfig.interval_min;
     await sleep(waitTime * 1000);
   }
 
-  // Fetch SOL price for volume in USD
+  // 8) Session complete
   const solPrice = await getSolUsdPrice();
   const usdVol = solPrice ? (totalVolume * solPrice).toFixed(2) : "N/A";
 
@@ -275,11 +237,11 @@ async function startVolumeSession({ userId, project, sessionConfig, bot, chatId 
     `Total volume generated: *${totalVolume.toFixed(4)} SOL* (~$${usdVol} USD)`,
     { parse_mode: 'Markdown' }
   );
-  delete activeSessions[chatId]; // Cleanup AFTER session finishes
+  delete activeSessions[chatId];
 }
 
 module.exports = {
   getSolBalance,
   startVolumeSession,
-  activeSessions,
+  activeSessions
 };

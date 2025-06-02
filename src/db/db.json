@@ -11,6 +11,7 @@
         "owner_id": 6926242896,
         "date_onboarded": "2025-05-25T22:28:18.348Z",
         "status": "onboarded",
+        "visible": true,
         "project_wallet": {
           "pubkey": "33gWGN3Yh17CaPLh3GHsY42SRpiBT151cXLLjHo4UcU5",
           "secret": "68c927febd3c0460c56d8b31cbe4aaebf915e8be82ac7b2cdc941d08d56b99f81e673413ca538a736b5030d84b72c0d909e6945e0865116cca631ea8362c6c36"
@@ -36,7 +37,229 @@
             "pubkey": "EvWZRpnhQUZdqqZg4eyGECL3NuAnmgcAeNVyoV281iBD",
             "secret": "060b6a307ac942337c907b1b008dad00cc849b1cb3063d4c53ee573573864c74cedd22b0acf5934d46fcfdf06122d9bc430559935d121d813549eb2466afdc24"
           }
+        ],
+        "ranker_wallets": [
+          {
+            "pubkey": "Ern26mVHJAPctCkCEeuTGyrS79p4btHRxbgZChM3MUUK",
+            "secret": "bb30c9a13886861d2d9d124f5e1c622d4f2f1beadff09d89dd63fcb9eda0640fcde84af3cfbaacfb83e032683b93d6863889385a2ad45dc43ccf7c5e4170223c"
+          },
+          {
+            "pubkey": "3bdwMWUDUCKaWaG6o7LShFj8oh6Lkz2eT3srLPwicd2N",
+            "secret": "1e2c452d0e7a6006f4f7ed76f0a0a7ba44c605e1ad27bf47715452de5612132f2696e2e51891531535dfadd1cbd9ee16956e7f8f6cacf5ecc511d486fc38b227"
+          },
+          {
+            "pubkey": "5hNDpkKeHQPATvhYmn2jZasXUfgA4EGZd9qdzmgR6D3E",
+            "secret": "99dfb689e5bfc24f4c6b03723576c8f7b2fc5baafe880079d3fad18b0034c5ef45c5f98e8d60edf10b59ae2e48aaeca18c794db374810361b73e7fb2b12fd359"
+          },
+          {
+            "pubkey": "DLNJeJbSmegJF4ZFPjmgD2TLP9dFFLPJrijHWJCpGihD",
+            "secret": "0bd42046aed4a887a8851a335415e95c96dac2b50e0be301a9f5100072fb3181b7425e01db5c56b6e846a000287875e4061bc997dd5b22cd90813b2ecec74ac8"
+          },
+          {
+            "pubkey": "akQZZsuJJEBzhVqx9jk1BSw1dLCjMHWNsVTsHwwHKiw",
+            "secret": "7951aff9d0e59ed7a1dbb4e1bbd90cfb6da45620eac5dfd47a5e5c944e6695b108a53f0c6bb8ddbc577f83d3fa0d4be6fe0702a5fe2a337d64328c7f11b5eca8"
+          },
+          {
+            "pubkey": "6Zy6m5Zjoe9VZSm4gJdFY4jS8xFH8z4wJbgArnfuEZBn",
+            "secret": "a5e1ae7d9e1772878e30430f98762fb2a8d1136f2b772d70f644d765570990e952bc73c44e91f1801775cf8f88c81e47527bf666c16522005cf132714af282b9"
+          },
+          {
+            "pubkey": "7Q6g9SNuoksAj7dxQpmAUPj7cXR84YcUgUPn3L242zGk",
+            "secret": "ebc980a55da5eb8aede6399e56b4f002ef0d83a678ef15e7e5bcd0695f2c191e5f10e5961964dc2a34950fafac53645b072bf2458552e598ec2a0210de8f504d"
+          },
+          {
+            "pubkey": "6Chf2UEgxrTkeS8bQLR96TZwKJ6UKjygxv8AzZbWqMFt",
+            "secret": "02112e9d22079ccca6c5bc05bea68fc1a39a4739d8666baf07758eacf3ee6c874d49cb0071f63a65c3f3a5c93233a2e30be4c08d108b04c2ba4f192cbffbe53f"
+          },
+          {
+            "pubkey": "5u8Hw1UdjphbhJa1XREhJgNEvUz7A5jdp4aefvqQcpMK",
+            "secret": "fabeaefd00521c5f7479fd8fcff27fa7463d43b1167f8cae1f56fdaf6e9e0c2f48c931dcb4bc2338b1279abe44bbccfbea99ee31d52100ee4109b6e5bc8db95e"
+          },
+          {
+            "pubkey": "36v9Gs3SjUZ1yw13himJf6BVFXQd1YspLmw1e6uuoY7S",
+            "secret": "5bc33c36313b590b11f0956647ea7aedfdb678a232083c0b51c830f18bd6ec311f3b5dd1a2ab4ba86cfff3b21909e72f4c04c3b81e9ed35827c427d7de42cf81"
+          },
+          {
+            "pubkey": "AxxiXLyB5CtxpUq5CmRN3CgEpcxwpUDFwRPAgARZ8XbZ",
+            "secret": "aa566e628f8911e88b987ff5e1eb3841aeff7ec31e170ff306e03d0bc49c8b71940f20019811f0a0ac1a725d00d7ff6d21aa4a44a1d38fa9f0398ee144cef8e4"
+          },
+          {
+            "pubkey": "GGvzZ5N6phmfBoCnMC5BFyc7ohQMzSoHYocESzC1Euz2",
+            "secret": "11b2892b4c1d863462a6768b61d7ab07340002efcbe78fe87e96b97260fb0557e2f410b84e05d1563df49aed8639e6a9f33c1c9e557266be2a21ff14ab908fe3"
+          },
+          {
+            "pubkey": "DgHThMCnu14xJmap1hdSvL3nNcPyePdopGoQfSBpJHAQ",
+            "secret": "ad137cdbc7be70d1ffbd072eb25dac8bae94bbff420f094d744aaf3923ed5856bc5c81a0995aa13b6df9d2ee7216dc8824264ebcb4ffe74345c9127886f51179"
+          },
+          {
+            "pubkey": "EyJA9seMVFY9SyxLX3EcKGEtJ4wkQ1CP1hFns9mZ6D86",
+            "secret": "3271312a00b1cf3dc9b26010d591e88941192646ad46406dd69d5e07c6d0be0bcf93db12559e8d98b01e17a050b2d7ba78f707c7c357566d982cdb22bee93393"
+          },
+          {
+            "pubkey": "5D2VwSzNqp6GKJYNQFkhN1JXAEABQsUAQwJ2jMjf6fCd",
+            "secret": "01ac89c6d40c0103ee1412a178c3ed7ab5abe36f4e767acf6bf24cbf05adeeb13e83698ae90c28c2d1e086bbbe67e17c716ca642f005dd73daf3eb2ee121a662"
+          },
+          {
+            "pubkey": "CYstqsasn6oSvx7KPdVmePq4j3hZ1e6F1VEqbEDDNsQA",
+            "secret": "dc0a15725f88436b2ea474db5d773b5b6a5afd09a08cd49fd0ff21868be0c138ab9b1b6c101f8a15da1337fad7a7392b1f7734fe269f97ee474ea96471eee40f"
+          },
+          {
+            "pubkey": "6ZGwfHenvwEkuSCHeSRNv7RpGqvXZixdE9gDkSeTGXAK",
+            "secret": "ca8fc40991a9e99fd2a2a6d4891fd9654048e057a50e4f20704fce75bdd550eb528f0bf284cd2bf9965a15573c988cc71de8524313b3c65499512b7f21c9122c"
+          },
+          {
+            "pubkey": "AWgGUs7Tc9Vc6GuyyLn1ME72bFSzdhY1SPnSdQbvJPcK",
+            "secret": "24c4ef5c84096c51d1d6dacf9b4f04d41af90e8e702374ac7757614a709f5eab8d536ccec240137fe1a78b64271669517754a15f690294bca5eb881b6c3dae10"
+          },
+          {
+            "pubkey": "2ECwhEGMxS5N3vNVNCu76pCnigyfuG2DoGpVBDmNBPaU",
+            "secret": "9de4c60af59ff45057f7a8cb2bc42b27c625462c3c465ab97f5975ba913a9b3e123dbdce555fb4880ff8581bab8b60dbdf71ff94abd388fb1ad2d6d0af9eba0d"
+          },
+          {
+            "pubkey": "35XLiK6Ycqu9CVe6tznD4SwdiMeEt2WfFibQUsrTay7V",
+            "secret": "a0cbeeb5b4ee840ce3b5a11705d942b7baf90b7ec85128d41d45571d00f71d4b1ee000a2e89fb3768ac155e10e2602ce9294947dfe97208f728800904513cac0"
+          },
+          {
+            "pubkey": "FJzTghi8g6jN1cmvwbvm6DfqSx7729yDmEMVbKGuXbyP",
+            "secret": "7d5198a5b5102ceef98aba3391c12a161fc579b38fc426fa173659219764df14d49f7606bdb8bedba767de3b270f51868e11999e0392ef727c2f8b7832ef555e"
+          },
+          {
+            "pubkey": "7cDFhw9kconfR6ZBRZNZe3Wt51w9HJCGJmYJbbvRCzTB",
+            "secret": "964da784b1175b60d23f20e94f4ce9b9778fd3a15e495d8468c413dac4d5c85a622b4e14dfd8daaf03ab34a3f7ffc7b94a6408f4e7f16af7ac68b14cb5811eca"
+          },
+          {
+            "pubkey": "AYUkkmqVeXY24C53MjCFmBA4AKeUYruoMxkA6PQdh7rF",
+            "secret": "e607f9acff032a5803be47176305ccd02bc4fe99e03b32839ae6cafd3a86436f8dc991c4ca316072104d778b9dc261fcb20c0551f54feaa5f785e857f7f9d8e0"
+          },
+          {
+            "pubkey": "9xgqpreCY7ndC2JLY78CUUmzi7MdmxKwP88VAK67MHT4",
+            "secret": "e467f0599b9184ba91d172ece995e4f999ba6c9411770593762bb9cfba79f27a85217d3b96b2a27d7553bda390aeda1ad8f7abfbbe6386951a2ddbca34056ac7"
+          },
+          {
+            "pubkey": "89Ez4KvWMMkhUcjR7vcoZPMy61wjz2KJ86YXjTrif4hy",
+            "secret": "526a3294e14c5cb0ba53934727387f429c4f02d44596d91b2d4d47be1465072f6a1e4434ccb65b66191103563590ddb4e9d6508c892fc18499c64ab49e4c2954"
+          },
+          {
+            "pubkey": "AUrN2UnsTKjK5Q2W9J1XB31mBwtjjPGfXU8W2TCWVvoP",
+            "secret": "684ca3913410f306f96d2f5fa3c663bfa7674bc4f74a4f66b598be81d6bc152a8cdbadb55ddc5f9855a01da0001950ef2db5890898de9e5341eab8d021856406"
+          },
+          {
+            "pubkey": "14ENrbCLL5RDYEDLzxtqhVhJ3x9rkbWLihbFv8JEuxeB",
+            "secret": "39316d696a0ce5e125fd47181ab5e00423e7445d7808eae1479ad98216d3b84400d3de1d4fc4901be524301eedbb56362187e8e4e60a057a09c1a46faf85b6f8"
+          },
+          {
+            "pubkey": "EhZVzERTJcrpRpXPWzR6Lv7etTP16Q4xPYtqi699mMVE",
+            "secret": "4e077c6930497b54d8e17be9ba60c4e3c7e9cb49147b02bb756830f6ad3a3a9ccb8be8f6b41edda9654dfeb453475e37b13a16c671be939be0444a705c938955"
+          },
+          {
+            "pubkey": "5ATTvoGDGxuPW9HUQ1bjxoQXdWvYiMQRbPiWJRx4RDPG",
+            "secret": "331a55d26eed4b66b03fbdf7af3633811fa4b3c4d0dbe6319ae852cdc4efe7b53ddae5f26c54bc574a556f2203729acbf255a93cac92d8801bc9b104292c1a8b"
+          },
+          {
+            "pubkey": "3wgqAU83TuagXxMjTFkZxSLv3gjg2fgRjrcaLXvSfFXb",
+            "secret": "5a3fac71fedce9752c92a883a7017530c352a9cfa2aabc6e2195c560447bc6e12bb9c61fa3e418988ee75e3b41118ab31a0096a4c72d26236c953436ed584786"
+          },
+          {
+            "pubkey": "AxX5huYgcwRR3GFeN3mbPfhMved6DXoTWuY44KrYBJ5t",
+            "secret": "90b836183e28cc27171b32e628ff577a41f17cd4e06006c4cfc8c329f3482e8793f223c1a0890008fc9234e7d75d2254308e48aa0134d02c01e312ab4b75ef9f"
+          },
+          {
+            "pubkey": "9UAftQ4bQdUcEqZYcJhaWa66eaNZ7nTzeTh1DU9A2saa",
+            "secret": "e9594ecc1fae3b49124d8bf43873b79721ac4ae8dc5033a08d0c90596dd8fec77dd31c96646a124a5444ee8637c29cf0e121794ae7fc94b2e4e393d42164ec1b"
+          },
+          {
+            "pubkey": "FyX7WdFF5WPQyqD1qJKZkqeNDqw4gCKoP9oJkj4nTCHG",
+            "secret": "0f37a3b32cd7cdf7417ced8bc1c611daaf8ca03629aa101dadde38d952844029de7e30b84b5ef65d36739727848c4aba1b49c67ac99173f3f118b7fe61197ffb"
+          },
+          {
+            "pubkey": "AZG4C2xWmN4P15e5Bzm1LBQYhkw2gw3yrYHiyRZPw5oF",
+            "secret": "bd403a3ccf8bbb3f26a917a4bf9985f1485d8050243025e379159bbe948cb8808dfcca7d55c7c53f87f7950d4a46b17ac2f418a78cf33d5a1e8ae5ba90bd25da"
+          },
+          {
+            "pubkey": "Gumy3kk5Zsxn2HeLmS51SKFPPnhxS7ZpQPA1jhoGLBNq",
+            "secret": "4897b04eaec0a33430340348b0199974a873701e960db60d6c25bf4a6f04680cec64597d1d77c65a70a5aaad21cf18d65026b41c452035bfaf8994476f60bd02"
+          },
+          {
+            "pubkey": "HcUSzBsSCVGFSbjfkLuhbffc1cFiv3q5KyWdUUZN5rtQ",
+            "secret": "788cec927dbfe1d94ba533fa16756457254903391e6b66ba514d3a50de388ea9f6d15acf9fdb961a005d33a1c5e94167107b0102530d5d33e1bef65dd7f4c8b9"
+          },
+          {
+            "pubkey": "HP2UK2KUQdntv6QQNEMYfbQvCD2s77H2b85U5BVsWGQy",
+            "secret": "783b77c869ba5aa2a65d9153d545b8803398e688d21260dcaa52c3c2f760345cf35f6e86d203df3bb0b1f26537e4c2ecc3a140508f1e72c42b5bd1abdd163332"
+          },
+          {
+            "pubkey": "ntff9uinuF8WTsriemveqzFsZD1DsTULFuuXpSaq3oH",
+            "secret": "f3e093439189b268ef204d89343bd2e24ea6b89a2c2480d4c4cfb6308ef7b8560bc18e50ea59ca7fd9205535810aa9d13352673f7eebacd153403fe40b5674b4"
+          },
+          {
+            "pubkey": "CapVUDUrdde3AW9rz81TThqdZdap9AVtf7WQxQ2pu1uq",
+            "secret": "dceae5e3f9ffe874e5ee1092dc4d4152118cb7e9d58ca52cc9731c08d5f8f8f5ac1a6bc43ee03b14b704e1b13b0d91582167f9bfaedf026282c95e1db1c6e9e8"
+          },
+          {
+            "pubkey": "2fJJR7nTdYaLHKP4qnb6skygq3dYEZheqSXhvivh166B",
+            "secret": "6e396bcb85c0754e75c6612be7e0c262dd18900ac92b5a76e2accd3b1e27b39c18ab51b3ee3fe5404fa3b565ee32a5362f63ec42a37efbb135b3691bbb209c40"
+          },
+          {
+            "pubkey": "8S3SHcyiPkdXV63KpKWgYDGh6e6R7gHmYsd8MwAk7V6V",
+            "secret": "0435eb59029047bf67ae37c91faa5f555aac313566455ee5d389bd046b49a5f36e6c15448c03720c7ce6cd6bfb4faa469a20ff3e5311a7a25ae3293d2f3f94ee"
+          },
+          {
+            "pubkey": "944dVxaWq1W1gYAKT5ditmoydmgvVUpZNpthmpQUhUYo",
+            "secret": "e020348b07e2989d05374946f6aec777c90c3dfa81017527e022e6049945e4c877a6576c6eb0ef6be2ec83cd7360c5f68702a1282f22992ff3e4a6d36c1de010"
+          },
+          {
+            "pubkey": "zz6vM4AXfizdamFRGm5bzmCYfM4syiYLKm3wwpjCdJT",
+            "secret": "4a4e2d4afd27777b4a0f41e2ea9e701c8aec4c503fb39bca285cebf6e62b05370edaabefcb2f2731dedbd3dd95545ab88cba8cc06e867182bcb7a9e05f6d2c3c"
+          },
+          {
+            "pubkey": "9XJfBEe8mnAmJ5yX7PbHYyAcxWDrRGEmyHtFe4DJT5uM",
+            "secret": "997c09a6300aea84a40160ec87dc80db43a299b394921c180dd1716339949b137ea0e2c9b686b07cbaec85ee1208d69c24de34c56204a720edfb74cba0b17d4c"
+          },
+          {
+            "pubkey": "GRRnWKeZWaZjTQXsj1XF5f3kskmodFAnRf4yJt2uiSrT",
+            "secret": "7ec0fa59a3d10b23297375f784e2489105fb52f3518c47d67e5eff098da4e3ffe521446f6bc4ca99badefb056b5fea0b65a1678f9b4067e46d7307e258056040"
+          },
+          {
+            "pubkey": "2heu7LwkAcp7bRApaa4WsZrxBwtbBzHAmoGysX9na2vS",
+            "secret": "48106fd5251077a94a9ba1d93f068831095a209ea27e865b11772573fab664191945c56ca93b7843f06b9332b4e12c4b86d7072c66d876804e6208600123bfb7"
+          },
+          {
+            "pubkey": "AhdrVmDaiHPVADxgJiYoXZV4Y2WpJr8dMd6zKjPyxN8Y",
+            "secret": "d7037bd1943d55c3cd4b1b63cb814c17ccc7d8f7770b7217c39c7649dba03083902215bf1806331d024ae7665a6d34690ecec2748b023c1a1fa4ef5518395a01"
+          },
+          {
+            "pubkey": "EJjWcMr7iwXXYcYJTeBsqQMi3nKkXYNFbruZZXLbyetd",
+            "secret": "26d159eb6dfd2277ee9ceed1c18a440b7bc850e532f234ee3d9a37fd237c7c3bc5b2dedea90814c1e2f97f7e84be318be6968b6163f78f85d070bd82cd65c926"
+          },
+          {
+            "pubkey": "4gpB54yQzfiQ1mzU7UcxHSh3R3n9EajUMaaamSDy3Un4",
+            "secret": "da773e07c4d6004b74732454ec4f4e97ff80d14fd271afe522d67b926571391e36c60d3d717fe4b7778359cdb04bcc45880abebb2f84f113becc7321d66c3991"
+          },
+          {
+            "pubkey": "6qxrYE6pvZkruBdiwesXwhRwfTbrHA28YbWbpshtJr6t",
+            "secret": "0dcba198dbfaae13582ce1e3afdc3d2c2f246b965ec44ea29bdb933b2f0b64bd56d577c900f3a0b226b314f61d79327c772df86cb8113602e282faad0b27e711"
+          }
         ]
+      },
+      {
+        "ca": "JBFqn8FerzEmmmE3yoBbVDdJZS8Rz3hjxitYDenWpump",
+        "token_name": "Willy",
+        "owner_id": 6926242896,
+        "date_onboarded": "2025-06-01T20:42:40.881Z",
+        "status": "onboarded",
+        "visible": false,
+        "project_wallet": null,
+        "market_maker_wallets": []
+      },
+      {
+        "ca": "HumE9jEZL3Xg4LSJXM1PNi8uWMEnAiCs6zJeAtohpump",
+        "token_name": "Elonwifhat",
+        "owner_id": 6926242896,
+        "date_onboarded": "2025-06-01T20:43:40.785Z",
+        "status": "onboarded",
+        "visible": false,
+        "project_wallet": null,
+        "market_maker_wallets": []
       }
     ]
   },
@@ -52,7 +275,11 @@
         "owner_id": 8092999681,
         "date_onboarded": "2025-06-01T17:55:08.443Z",
         "status": "onboarded",
-        "project_wallet": null,
+        "visible": true,
+        "project_wallet": {
+          "pubkey": "G21SN5Ew3PCLf1J4njvrFQ38piT1QgVvHk9FJd92JNYq",
+          "secret": "babd49218c8e0a24f16dfd5861c5d7e05ca06403cd4a63b990d4282e012f0f79df2161109bb41b00f31fe692fcd09b932f0ae6b5f266bd04ba5a867bcfc77f62"
+        },
         "market_maker_wallets": []
       }
     ]
